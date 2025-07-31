@@ -1,4 +1,4 @@
-package com.devteria.profile;
+package com.chinhbean.profile;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

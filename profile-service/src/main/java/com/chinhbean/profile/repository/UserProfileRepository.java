@@ -1,6 +1,6 @@
-package com.devteria.profile.repository;
+package com.chinhbean.profile.repository;
 
-import com.devteria.profile.entity.UserProfile;
+import com.chinhbean.profile.entity.UserProfile;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.stereotype.Repository;
 

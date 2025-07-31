@@ -1,4 +1,4 @@
-package com.devteria.profile.entity;
+package com.chinhbean.profile.entity;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

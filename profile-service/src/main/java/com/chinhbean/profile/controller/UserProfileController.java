@@ -1,8 +1,8 @@
-package com.devteria.profile.controller;
+package com.chinhbean.profile.controller;
 
-import com.devteria.profile.dto.request.ProfileCreationRequest;
-import com.devteria.profile.dto.response.UserProfileReponse;
-import com.devteria.profile.service.UserProfileService;
+import com.chinhbean.profile.dto.request.ProfileCreationRequest;
+import com.chinhbean.profile.dto.response.UserProfileReponse;
+import com.chinhbean.profile.service.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

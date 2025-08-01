@@ -1,7 +1,7 @@
 package com.chinhbean.profile.mapper;
 
 import com.chinhbean.profile.dto.request.ProfileCreationRequest;
-import com.chinhbean.profile.dto.response.UserProfileReponse;
+import com.chinhbean.profile.dto.response.UserProfileResponse;
 import com.chinhbean.profile.entity.UserProfile;
 import org.mapstruct.Mapper;
 
@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
 public interface UserProfileMapper {
     UserProfile toUserProfile(ProfileCreationRequest request);
 
-    UserProfileReponse toUserProfileReponse(UserProfile entity);
+    UserProfileResponse toUserProfileResponse(UserProfile entity);
 }

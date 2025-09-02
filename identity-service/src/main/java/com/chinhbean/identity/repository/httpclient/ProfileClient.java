@@ -1,6 +1,7 @@
 package com.chinhbean.identity.repository.httpclient;
 
 import com.chinhbean.identity.configuration.AuthenticationRequestInterceptor;
+import com.chinhbean.identity.dto.request.ApiResponse;
 import com.chinhbean.identity.dto.request.ProfileCreationRequest;
 import com.chinhbean.identity.dto.response.UserProfileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
     , configuration = {AuthenticationRequestInterceptor.class})
 public interface ProfileClient {
     @PostMapping(value = "/internal/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    UserProfileResponse createProfile(
+    ApiResponse<UserProfileResponse> createProfile(
 //            @RequestHeader("Authorization") String token,
             @RequestBody ProfileCreationRequest request);
 }

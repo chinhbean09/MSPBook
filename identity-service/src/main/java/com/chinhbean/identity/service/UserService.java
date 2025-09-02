@@ -3,6 +3,7 @@ package com.chinhbean.identity.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.chinhbean.event.dto.NotificationEvent;
 import com.chinhbean.identity.mapper.ProfileMapper;
 import com.chinhbean.identity.repository.httpclient.ProfileClient;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -41,8 +42,7 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     ProfileMapper profileMapper;
     ProfileClient profileClient;
-    KafkaTemplate<String, String> kafkaTemplate;
-
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     public UserResponse createUser(UserCreationRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USER_EXISTED);
@@ -65,11 +65,22 @@ public class UserService {
 //
 //        var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
 
-        profileClient.createProfile(profileRequest);
+        var profile = profileClient.createProfile(profileRequest);
         // Publish message to kafka
-        kafkaTemplate.send("onboard-successful", "Welcome our new member " + user.getUsername());
 
-        return userMapper.toUserResponse(user);
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to bookteria")
+                .body("Hello, " + request.getUsername())
+                .build();
+
+        kafkaTemplate.send("notification-delivery", notificationEvent);
+
+        var userCreationReponse = userMapper.toUserResponse(user);
+        userCreationReponse.setId(profile.getResult().getId());
+
+        return userCreationReponse;
     }
 
     public UserResponse getMyInfo() {

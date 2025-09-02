@@ -30,3 +30,9 @@ spring:
             - Path=${app.api-pre fix}/notification/**
           filters:
             - StripPrefix=2
+        - id: post_service
+          uri: http://localhost:8083
+          predicates:
+            - Path=${app.api-pre fix}/post/**
+          filters:
+            - StripPrefix=2

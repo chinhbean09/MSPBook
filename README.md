@@ -1,6 +1,11 @@
-# micro-social-platform
+# Welcome to the Micro Book Social Platform (Microservices) (MSP) repository
+
+<p align="center">
+  <img src="https://undraw.co/api/illustrations/undraw_Books_re_8gea.svg" alt="Micro Book Social Platform" width="400"/>
+</p>
+
 ## Project Content
-- Description: A social platform built with a microservice architecture.
-## Current Microservices
-- Identity Service - MySQL: Manages user accounts. Handles authentication, authorization, and user registration.
-- Profile Service - Neo4j (Graph Database):  Manages detailed user information. Handles friendships and social connections.
+- **Description**: A book social platform built with a microservice architecture.
+- **Architecture**: Microservices (Spring Boot, Docker, Kubernetes ready)
+
+---

@@ -4,6 +4,8 @@ import com.chinhbean.profile.dto.request.ProfileCreationRequest;
 import com.chinhbean.profile.dto.response.UserProfileResponse;
 import com.chinhbean.profile.dto.response.UserProfileResponse;
 import com.chinhbean.profile.entity.UserProfile;
+import com.chinhbean.profile.exception.AppException;
+import com.chinhbean.profile.exception.ErrorCode;
 import com.chinhbean.profile.mapper.UserProfileMapper;
 import com.chinhbean.profile.repository.UserProfileRepository;
 import lombok.AccessLevel;
@@ -43,4 +45,13 @@ public class UserProfileService {
 
         return profiles.stream().map(userProfileMapper::toUserProfileResponse).toList();
     }
+
+    public UserProfileResponse getByUserId(String userId) {
+        UserProfile userProfile =
+                userProfileRepository.findByUserId(userId)
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userProfileMapper.toUserProfileResponse(userProfile);
+    }
+
 }

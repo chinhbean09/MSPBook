@@ -8,9 +8,13 @@ import com.chinhbean.notification.exception.AppException;
 import com.chinhbean.notification.exception.ErrorCode;
 import com.chinhbean.notification.repository.httpclient.EmailClient;
 import feign.FeignException;
+import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +25,17 @@ import java.util.List;
 public class EmailService {
     EmailClient emailClient;
 
-    String apiKey = "apikey";
+    @Value("${notification.email.brevo-apikey}")
+    @NonFinal
+    String apiKey;
+
+    @PostConstruct
+    public void init() {
+        // Load .env file
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+        // Set system property for BREVO_API_KEY to be used by @Value
+        System.setProperty("notification.email.brevo-apikey", dotenv.get("BREVO_API_KEY", ""));
+    }
 
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()

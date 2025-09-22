@@ -29,14 +29,6 @@ public class EmailService {
     @NonFinal
     String apiKey;
 
-    @PostConstruct
-    public void init() {
-        // Load .env file
-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        // Set system property for BREVO_API_KEY to be used by @Value
-        System.setProperty("notification.email.brevo-apikey", dotenv.get("BREVO_API_KEY", ""));
-    }
-
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()
                 .sender(Sender.builder()
@@ -49,7 +41,7 @@ public class EmailService {
                 .build();
         try {
             return emailClient.sendEmail(apiKey, emailRequest);
-        } catch (FeignException e){
+        } catch (FeignException e) {
             throw new AppException(ErrorCode.CANNOT_SEND_EMAIL);
         }
     }

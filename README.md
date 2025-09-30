@@ -7,5 +7,13 @@
 ## Project Content
 - **Description**: A book social platform built with a microservice architecture.
 - **Architecture**: Microservices (Spring Boot, Docker, Kubernetes ready)
+## Microsevices(until now)
+- api-gateway(service)
+- identify-service
+- profile-service
+- notification-service
+- post-service
+- file-service
+- ...
 
 ---

@@ -1,7 +1,7 @@
-package com.devteria.chat.repository.httpclient;
+package com.chinhbean.chat.repository.httpclient;
 
-import com.devteria.chat.dto.ApiResponse;
-import com.devteria.chat.dto.response.UserProfileResponse;
+import com.chinhbean.chat.dto.ApiResponse;
+import com.chinhbean.chat.dto.response.UserProfileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

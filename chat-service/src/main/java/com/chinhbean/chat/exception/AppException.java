@@ -1,4 +1,4 @@
-package com.devteria.chat.exception;
+package com.chinhbean.chat.exception;
 
 public class AppException extends RuntimeException {
 

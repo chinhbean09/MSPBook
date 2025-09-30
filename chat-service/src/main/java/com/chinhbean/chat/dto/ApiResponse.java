@@ -1,4 +1,4 @@
-package com.devteria.chat.dto;
+package com.chinhbean.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;

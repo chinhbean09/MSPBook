@@ -1,4 +1,4 @@
-package com.devteria.chat.configuration;
+package com.chinhbean.chat.configuration;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

@@ -1,6 +1,6 @@
-package com.devteria.chat.exception;
+package com.chinhbean.chat.exception;
 
-import com.devteria.chat.dto.ApiResponse;
+import com.chinhbean.chat.dto.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

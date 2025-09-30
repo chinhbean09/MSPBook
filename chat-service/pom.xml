@@ -8,7 +8,7 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.devteria</groupId>
+	<groupId>com.chinhbean</groupId>
 	<artifactId>chat-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>chat-service</name>
@@ -135,10 +135,10 @@
 				</executions>
 				<configuration>
 					<excludes>
-						<exclude>com/devteria/profile/dto/**</exclude>
-						<exclude>com/devteria/profile/entity/**</exclude>
-						<exclude>com/devteria/profile/mapper/**</exclude>
-						<exclude>com/devteria/profile/configuration/**</exclude>
+						<exclude>com/chinhbean/profile/dto/**</exclude>
+						<exclude>com/chinhbean/profile/entity/**</exclude>
+						<exclude>com/chinhbean/profile/mapper/**</exclude>
+						<exclude>com/chinhbean/profile/configuration/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

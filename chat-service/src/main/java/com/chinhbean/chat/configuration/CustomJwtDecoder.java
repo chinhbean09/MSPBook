@@ -1,4 +1,4 @@
-package com.devteria.chat.configuration;
+package com.chinhbean.chat.configuration;
 
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.oauth2.jwt.Jwt;

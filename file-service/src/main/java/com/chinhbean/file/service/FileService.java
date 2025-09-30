@@ -1,6 +1,9 @@
 package com.chinhbean.file.service;
 
 import com.chinhbean.file.dto.FileResponse;
+import com.chinhbean.file.dto.response.FileData;
+import com.chinhbean.file.exception.AppException;
+import com.chinhbean.file.exception.ErrorCode;
 import com.chinhbean.file.mapper.FileMgmtMapper;
 import com.chinhbean.file.repository.FileMgmtRepository;
 import com.chinhbean.file.repository.FileRepository;
@@ -35,5 +38,14 @@ public class FileService {
                 .originalFileName(file.getOriginalFilename())
                 .url(fileInfo.getUrl())
                 .build();
+    }
+
+    public FileData download(String fileName) throws IOException {
+        var fileMgmt = fileMgmtRepository.findById(fileName).orElseThrow(
+                () -> new AppException(ErrorCode.FILE_NOT_FOUND));
+
+        var resource = fileRepository.read(fileMgmt);
+
+        return new FileData(fileMgmt.getContentType(), resource);
     }
 }

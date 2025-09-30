@@ -1,6 +1,6 @@
-package com.devteria.chat.dto.response;
+package com.chinhbean.chat.dto.response;
 
-import com.devteria.chat.entity.ParticipantInfo;
+import com.chinhbean.chat.entity.ParticipantInfo;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

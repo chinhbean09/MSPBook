@@ -1,7 +1,7 @@
-package com.devteria.chat.mapper;
+package com.chinhbean.chat.mapper;
 
-import com.devteria.chat.dto.response.ConversationResponse;
-import com.devteria.chat.entity.Conversation;
+import com.chinhbean.chat.dto.response.ConversationResponse;
+import com.chinhbean.chat.entity.Conversation;
 import org.mapstruct.Mapper;
 
 import java.util.List;

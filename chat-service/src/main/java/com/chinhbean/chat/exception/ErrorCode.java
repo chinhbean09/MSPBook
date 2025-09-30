@@ -1,4 +1,4 @@
-package com.devteria.chat.exception;
+package com.chinhbean.chat.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

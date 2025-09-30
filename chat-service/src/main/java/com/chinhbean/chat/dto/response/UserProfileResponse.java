@@ -1,4 +1,4 @@
-package com.devteria.chat.dto.response;
+package com.chinhbean.chat.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

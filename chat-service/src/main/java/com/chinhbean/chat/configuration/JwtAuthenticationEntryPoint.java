@@ -1,7 +1,7 @@
-package com.devteria.chat.configuration;
+package com.chinhbean.chat.configuration;
 
-import com.devteria.chat.dto.ApiResponse;
-import com.devteria.chat.exception.ErrorCode;
+import com.chinhbean.chat.dto.ApiResponse;
+import com.chinhbean.chat.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

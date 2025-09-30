@@ -1,10 +1,10 @@
-package com.devteria.chat.controller;
+package com.chinhbean.chat.controller;
 
-import com.devteria.chat.dto.ApiResponse;
+import com.chinhbean.chat.dto.ApiResponse;
 
-import com.devteria.chat.dto.request.ConversationRequest;
-import com.devteria.chat.dto.response.ConversationResponse;
-import com.devteria.chat.service.ConversationService;
+import com.chinhbean.chat.dto.request.ConversationRequest;
+import com.chinhbean.chat.dto.response.ConversationResponse;
+import com.chinhbean.chat.service.ConversationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

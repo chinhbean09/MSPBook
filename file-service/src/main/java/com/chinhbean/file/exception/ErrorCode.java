@@ -11,6 +11,8 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     FILE_STORAGE_ERROR(1001, "Failed to store file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_NOT_FOUND(1008, "File not found", HttpStatus.NOT_FOUND),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

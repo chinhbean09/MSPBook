@@ -1,14 +1,14 @@
-package com.devteria.chat.service;
+package com.chinhbean.chat.service;
 
-import com.devteria.chat.dto.request.ConversationRequest;
-import com.devteria.chat.dto.response.ConversationResponse;
-import com.devteria.chat.entity.Conversation;
-import com.devteria.chat.entity.ParticipantInfo;
-import com.devteria.chat.exception.AppException;
-import com.devteria.chat.exception.ErrorCode;
-import com.devteria.chat.mapper.ConversationMapper;
-import com.devteria.chat.repository.ConversationRepository;
-import com.devteria.chat.repository.httpclient.ProfileClient;
+import com.chinhbean.chat.dto.request.ConversationRequest;
+import com.chinhbean.chat.dto.response.ConversationResponse;
+import com.chinhbean.chat.entity.Conversation;
+import com.chinhbean.chat.entity.ParticipantInfo;
+import com.chinhbean.chat.exception.AppException;
+import com.chinhbean.chat.exception.ErrorCode;
+import com.chinhbean.chat.mapper.ConversationMapper;
+import com.chinhbean.chat.repository.ConversationRepository;
+import com.chinhbean.chat.repository.httpclient.ProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,13 +34,14 @@ public class ConversationService {
 
     public List<ConversationResponse> myConversations() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+       //Query all conversations that contains userId in participantIds
         List<Conversation> conversations = conversationRepository.findAllByParticipantIdsContains(userId);
 
         return conversations.stream().map(this::toConversationResponse).toList();
     }
 
     public ConversationResponse create(ConversationRequest request) {
-        // Fetch user infos
+        // get current user and remaining user infor from PS
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         var userInfoResponse = profileClient.getProfile(userId);
         var participantInfoResponse = profileClient.getProfile(
@@ -60,6 +61,7 @@ public class ConversationService {
         var sortedIds = userIds.stream().sorted().toList();
         String userIdHash = generateParticipantHash(sortedIds);
 
+        //ParticipantInfo cho từng user
         List<ParticipantInfo> participantInfos = List.of(
             ParticipantInfo.builder()
                     .userId(userInfo.getUserId())

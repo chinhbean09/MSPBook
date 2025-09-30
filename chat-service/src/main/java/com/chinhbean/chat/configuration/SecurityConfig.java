@@ -1,4 +1,4 @@
-package com.devteria.chat.configuration;
+package com.chinhbean.chat.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

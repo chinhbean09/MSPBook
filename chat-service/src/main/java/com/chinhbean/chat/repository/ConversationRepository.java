@@ -1,6 +1,6 @@
-package com.devteria.chat.repository;
+package com.chinhbean.chat.repository;
 
-import com.devteria.chat.entity.Conversation;
+import com.chinhbean.chat.entity.Conversation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

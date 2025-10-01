@@ -14,6 +14,7 @@
 - notification-service
 - post-service
 - file-service
+- chat-service
 - ...
 
 ---

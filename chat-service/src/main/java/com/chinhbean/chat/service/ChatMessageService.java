@@ -10,6 +10,7 @@ import com.chinhbean.chat.mapper.ChatMessageMapper;
 import com.chinhbean.chat.repository.ChatMessageRepository;
 import com.chinhbean.chat.repository.ConversationRepository;
 import com.chinhbean.chat.repository.httpclient.ProfileClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class ChatMessageService {
     ChatMessageRepository chatMessageRepository;
     ConversationRepository conversationRepository;
     ProfileClient profileClient;
+    SocketIOServer socketIOServer;
 
     ChatMessageMapper chatMessageMapper;
 
@@ -79,6 +81,14 @@ public class ChatMessageService {
 
         // Create chat message
         chatMessage = chatMessageRepository.save(chatMessage);
+        String message = chatMessage.getMessage();
+
+        // Send message to Socket.IO server
+        //
+        socketIOServer.getAllClients().forEach(client -> {
+            // send to all clients for simplicity
+            client.sendEvent("message", message);
+        });
 
         // convert to Response
         return toChatMessageResponse(chatMessage);

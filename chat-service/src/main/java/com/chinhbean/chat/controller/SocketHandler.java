@@ -1,5 +1,7 @@
 package com.chinhbean.chat.controller;
 
+import com.chinhbean.chat.dto.request.IntrospectRequest;
+import com.chinhbean.chat.service.IdentityService;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
@@ -19,13 +21,27 @@ import org.springframework.stereotype.Component;
 public class SocketHandler {
     // Injected SocketIOServer instance
     SocketIOServer server;
+    IdentityService identityService;
 
     @OnConnect
     //OnConnect annotation to indicate that this method should be called when a client connects to the server
     // Method to handle client connection events
     public void clientConnected(SocketIOClient client) {
-        log.info("Client connected: {}", client.getSessionId());
-    }
+ // token from the client's handshake data
+        String token = client.getHandshakeData().getSingleUrlParam("token");
+        // Verify token using the IdentityService
+        //builder pattern to create an IntrospectRequest object with the token, why ? because IntrospectRequest has only one field
+        var introspectResponse = identityService.introspect(IntrospectRequest.builder()
+                .token(token)
+                .build());
+        // If Token is invalid disconnect the client
+        if (introspectResponse.isValid()) {
+            log.info("Client connected: {}", client.getSessionId());
+        } else {
+            // Log an error message and disconnect the client
+            log.error("Authentication fail: {}", client.getSessionId());
+            client.disconnect();
+        }    }
 
     @OnDisconnect
     public void clientDisconnected(SocketIOClient client) {

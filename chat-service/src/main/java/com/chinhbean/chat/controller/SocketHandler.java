@@ -1,7 +1,9 @@
 package com.chinhbean.chat.controller;
 
 import com.chinhbean.chat.dto.request.IntrospectRequest;
+import com.chinhbean.chat.entity.WebSocketSession;
 import com.chinhbean.chat.service.IdentityService;
+import com.chinhbean.chat.service.WebSocketSessionService;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
@@ -14,6 +16,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class SocketHandler {
     // Injected SocketIOServer instance
     SocketIOServer server;
     IdentityService identityService;
+    WebSocketSessionService webSocketSessionService;
 
     @OnConnect
     //OnConnect annotation to indicate that this method should be called when a client connects to the server
@@ -36,16 +41,29 @@ public class SocketHandler {
                 .build());
         // If Token is invalid disconnect the client
         if (introspectResponse.isValid()) {
-            log.info("Client connected: {}", client.getSessionId());
+            // Log the client connection event with the session ID
+            //builder for design pattern that allows for the step-by-step construction of complex objects
+
+            WebSocketSession webSocketSession = WebSocketSession.builder()
+                    .socketSessionId(client.getSessionId().toString())
+                    .userId(introspectResponse.getUserId())
+                    .createdAt(Instant.now())
+                    .build();
+            webSocketSession = webSocketSessionService.create(webSocketSession);
+
+            log.info("WebSocketSession created with id: {}", webSocketSession.getId());
         } else {
             // Log an error message and disconnect the client
             log.error("Authentication fail: {}", client.getSessionId());
             client.disconnect();
-        }    }
+        }
+    }
 
     @OnDisconnect
     public void clientDisconnected(SocketIOClient client) {
         log.info("Client disConnected: {}", client.getSessionId());
+        webSocketSessionService.deleteSession(client.getSessionId().toString());
+
     }
 
     @PostConstruct

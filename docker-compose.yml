@@ -15,3 +15,172 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+  mysql-identity:
+    image: mysql:8.0
+    container_name: mysql-identity
+    hostname: mysql-identity
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+      MYSQL_DATABASE: "social_platform_identity"
+    volumes:
+      - identity-db-data:/var/lib/mysql
+
+  identity-service:
+    build:
+      context: ./identity-service
+    container_name: identity-service
+    hostname: identity-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - mysql-identity
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-identity:3306/social_platform_identity
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - APP_SERVICES_PROFILE=http://profile-service:8081/profile
+
+  neo4j-profile:
+    image: neo4j:4.4
+    container_name: neo4j-profile
+    hostname: neo4j-profile
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/12345678
+    volumes:
+      - profile-db-data:/data
+
+  profile-service:
+    build:
+      context: ./profile-service
+    container_name: profile-service
+    hostname: profile-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - neo4j-profile
+    environment:
+      - SPRING_NEO4J_URI=bolt://neo4j-profile:7687
+      - APP_SERVICES_FILE=http://file-service:8084
+
+  mongo-post:
+    image: mongo:latest
+    container_name: mongo-post
+    hostname: mongo-post
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - post-db-data:/data/db
+
+  post-service:
+    build:
+      context: ./post-service
+    container_name: post-service
+    hostname: post-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mongo-post
+      - profile-service
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/post-service?authSource=admin
+      - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
+
+  file-service:
+    build:
+      context: ./file-service
+    container_name: file-service
+    hostname: file-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mongo-post
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/file-service?authSource=admin
+      - APP_FILE_STORAGE-DIR=/upload
+    volumes:
+      - file-storage:/upload
+
+  chat-service:
+    build:
+      context: ./chat-service
+    container_name: chat-service
+    hostname: chat-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - mongo-post
+      - profile-service
+      - identity-service
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/chat-service?authSource=admin
+      - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
+      - APP_SERVICES_IDENTITY_URL=http://identity-service:8080/identity
+
+  notification-service:
+    build:
+      context: ./notification-service
+    container_name: notification-service
+    hostname: notification-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongo-post
+      - kafka
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/notification-service?authSource=admin
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - BREVO_API_KEY=your_brevo_api_key
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    hostname: api-gateway
+    ports:
+      - "8888:8888"
+    depends_on:
+      - identity-service
+      - profile-service
+      - notification-service
+      - post-service
+      - file-service
+      - chat-service
+    environment:
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_ID=identity_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://identity-service:8080
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/api/v1/identity/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0=StripPrefix=2
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_ID=profile_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://profile-service:8081
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/api/v1/profile/users/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0=StripPrefix=2
+      - SPRING_CLOUD_GATEWAY_ROUTES_2_ID=notification_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://notification-service:8082
+      - SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0=Path=/api/v1/notification/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0=StripPrefix=2
+      - SPRING_CLOUD_GATEWAY_ROUTES_3_ID=post_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_3_URI=http://post-service:8083
+      - SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/api/v1/post/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=StripPrefix=2
+      - SPRING_CLOUD_GATEWAY_ROUTES_4_ID=file_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_4_URI=http://file-service:8084
+      - SPRING_CLOUD_GATEWAY_ROUTES_4_PREDICATES_0=Path=/api/v1/file/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_4_FILTERS_0=StripPrefix=2
+      - SPRING_CLOUD_GATEWAY_ROUTES_5_ID=chat_service
+      - SPRING_CLOUD_GATEWAY_ROUTES_5_URI=http://chat-service:8085
+      - SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0=Path=/api/v1/chat/**
+      - SPRING_CLOUD_GATEWAY_ROUTES_5_FILTERS_0=StripPrefix=2
+
+volumes:
+  identity-db-data:
+  profile-db-data:
+  post-db-data:
+  file-storage:

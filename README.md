@@ -28,13 +28,6 @@ Before you begin, ensure you have the following installed on your system:
 ---
 ## Step 1: Create a `Dockerfile` for Each Microservice
 For each Java-based service, you need a `Dockerfile` to build its container image. The content for each `Dockerfile` will be the same.
-**`Dockerfile` Content:**
-```dockerfile
-FROM openjdk:21-jdk-slim
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-```
 Create a file named `Dockerfile` with the content above in the root directory of each of the following services:
 - `api-gateway/`
 - `chat-service/`
@@ -45,11 +38,9 @@ Create a file named `Dockerfile` with the content above in the root directory of
 - `profile-service/`
 ---
 ## Step 2: Configure the `docker-compose.yml` File
-
 The `docker-compose.yml` file orchestrates the startup and networking of all services, including the application microservices and their backing databases and message brokers.
 Place the following content in the `docker-compose.yml` file in the project's root directory.
 **Important:** Before running, find the line `BREVO_API_KEY=your_brevo_api_key` and replace `your_brevo_api_key` with your actual key.
-
 ---
 
 ## Step 3: Build and Run the Application
@@ -60,15 +51,9 @@ Place the following content in the `docker-compose.yml` file in the project's ro
     ```bash
     docker-compose up --build -d
     ```
-
-This command will:
-- `--build`: Force the build of Docker images from the `Dockerfile` in each service directory.
-- `-d`: Run the containers in detached mode, so they run in the background.
-
 ---
 
 ## Step 4: Accessing the Application
-
 Once all containers are up and running, the entire platform is accessible through the API Gateway.
 
 -   **API Gateway URL**: `http://localhost:8888`

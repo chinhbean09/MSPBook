@@ -1,4 +1,5 @@
 name: micro-service-platform
+
 services:
   kafka:
     image: bitnamilegacy/kafka:3.7.0
@@ -7,6 +8,7 @@ services:
     ports:
       - '9094:9094'
     environment:
+      # chế độ đơn giản (single node).
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
@@ -14,6 +16,8 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    restart: on-failure
+
   mysql-identity:
     image: mysql:8.0.36-debian
     container_name: mysql-db
@@ -22,9 +26,18 @@ services:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "12345"
+      # Image MySQL sẽ tự động tạo database này trong lần khởi động đầu tiên.
       MYSQL_DATABASE: "social_platform_identity"
     volumes:
       - identity-db-data:/var/lib/mysql
+    healthcheck:
+      # Docker sẽ liên tục chạy lệnh này bên trong container để kiểm tra.
+      # Lệnh `mysqladmin ping` chỉ thành công khi MySQL server đã thực sự sẵn sàng nhận kết nối.
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s # Mỗi 10 giây kiểm tra một lần.
+      timeout: 5s   # Chờ tối đa 5 giây cho mỗi lần kiểm tra.
+      retries: 10   # Thử lại 10 lần trước khi báo lỗi.
+    restart: on-failure
 
   identity-service:
     build:
@@ -33,13 +46,19 @@ services:
     hostname: identity-service
     ports:
       - "8080:8080"
+    # ĐIỀU KIỆN CHỜ NÂNG CAO:
     depends_on:
-      - kafka
-      - mysql-identity
+      mysql-identity:
+        # chờ cho đến khi healthcheck của mysql-identity báo trạng thái healthy.
+        # điều này đảm bảo identity-service sẽ không bao giờ bị lỗi connection refused".
+        condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-identity:3306/social_platform_identity
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - APP_SERVICES_PROFILE=http://profile-service:8081/profile
+    restart: on-failure
 
   neo4j-profile:
     image: neo4j:4.4
@@ -52,6 +71,7 @@ services:
       NEO4J_AUTH: neo4j/12345678
     volumes:
       - profile-db-data:/data
+    restart: on-failure
 
   profile-service:
     build:
@@ -65,6 +85,7 @@ services:
     environment:
       - SPRING_NEO4J_URI=bolt://neo4j-profile:7687
       - APP_SERVICES_FILE=http://file-service:8084
+    restart: on-failure
 
   mongo-db:
     image: bitnamilegacy/mongodb:7.0
@@ -77,6 +98,7 @@ services:
       MONGODB_ROOT_PASSWORD: root
     volumes:
       - mongodb-data:/data/db
+    restart: on-failure
 
   post-service:
     build:
@@ -91,6 +113,7 @@ services:
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/post-service?authSource=admin
       - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
+    restart: on-failure
 
   file-service:
     build:
@@ -106,6 +129,7 @@ services:
       - APP_FILE_STORAGE-DIR=/upload
     volumes:
       - file-storage:/upload
+    restart: on-failure
 
   chat-service:
     build:
@@ -122,6 +146,7 @@ services:
       - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/chat-service?authSource=admin
       - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
       - APP_SERVICES_IDENTITY_URL=http://identity-service:8080/identity
+    restart: on-failure
 
   notification-service:
     build:
@@ -133,12 +158,13 @@ services:
     depends_on:
       - mongo-db
       - kafka
-# Đọc file .env từ thư mục gốc, inject chúng vào môi trường của container notification-service dưới dạng các biến môi trường
+    # Đọc file .env từ thư mục gốc.
     env_file:
       - ./.env
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/notification-service?authSource=admin
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    restart: on-failure
 
   api-gateway:
     build:
@@ -154,31 +180,11 @@ services:
       - post-service
       - file-service
       - chat-service
+    # Ghi đè các route để trỏ đến tên hostname của các service trong mạng Docker.
     environment:
       - SPRING_CLOUD_GATEWAY_ROUTES_0_ID=identity_service
       - SPRING_CLOUD_GATEWAY_ROUTES_0_URI=http://identity-service:8080
-      - SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0=Path=/api/v1/identity/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0=StripPrefix=2
-      - SPRING_CLOUD_GATEWAY_ROUTES_1_ID=profile_service
-      - SPRING_CLOUD_GATEWAY_ROUTES_1_URI=http://profile-service:8081
-      - SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0=Path=/api/v1/profile/users/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0=StripPrefix=2
-      - SPRING_CLOUD_GATEWAY_ROUTES_2_ID=notification_service
-      - SPRING_CLOUD_GATEWAY_ROUTES_2_URI=http://notification-service:8082
-      - SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0=Path=/api/v1/notification/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0=StripPrefix=2
-      - SPRING_CLOUD_GATEWAY_ROUTES_3_ID=post_service
-      - SPRING_CLOUD_GATEWAY_ROUTES_3_URI=http://post-service:8083
-      - SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0=Path=/api/v1/post/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0=StripPrefix=2
-      - SPRING_CLOUD_GATEWAY_ROUTES_4_ID=file_service
-      - SPRING_CLOUD_GATEWAY_ROUTES_4_URI=http://file-service:8084
-      - SPRING_CLOUD_GATEWAY_ROUTES_4_PREDICATES_0=Path=/api/v1/file/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_4_FILTERS_0=StripPrefix=2
-      - SPRING_CLOUD_GATEWAY_ROUTES_5_ID=chat_service
-      - SPRING_CLOUD_GATEWAY_ROUTES_5_URI=http://chat-service:8085
-      - SPRING_CLOUD_GATEWAY_ROUTES_5_PREDICATES_0=Path=/api/v1/chat/**
-      - SPRING_CLOUD_GATEWAY_ROUTES_5_FILTERS_0=StripPrefix=2
+    restart: on-failure
 
 volumes:
   identity-db-data:

@@ -13,5 +13,4 @@ public class FileResponse {
     String originalFileName;
 
     String url;
-
 }

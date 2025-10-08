@@ -1,11 +1,12 @@
 package com.chinhbean.profile.configuration;
 
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 // Interceptor to pass the Authorization header from incoming requests to outgoing Feign client requests
@@ -30,7 +31,6 @@ public class AuthenticationRequestInterceptor implements RequestInterceptor {
 
         log.info("Header: {}", authHeader);
         // If the Authorization header is present, add it to the Feign client request
-        if (StringUtils.hasText(authHeader))
-            template.header("Authorization", authHeader);
+        if (StringUtils.hasText(authHeader)) template.header("Authorization", authHeader);
     }
 }

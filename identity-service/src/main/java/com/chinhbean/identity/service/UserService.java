@@ -3,15 +3,13 @@ package com.chinhbean.identity.service;
 import java.util.HashSet;
 import java.util.List;
 
-import com.chinhbean.event.dto.NotificationEvent;
-import com.chinhbean.identity.mapper.ProfileMapper;
-import com.chinhbean.identity.repository.httpclient.ProfileClient;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.chinhbean.event.dto.NotificationEvent;
 import com.chinhbean.identity.constant.PredefinedRole;
 import com.chinhbean.identity.dto.request.UserCreationRequest;
 import com.chinhbean.identity.dto.request.UserUpdateRequest;
@@ -20,16 +18,16 @@ import com.chinhbean.identity.entity.Role;
 import com.chinhbean.identity.entity.User;
 import com.chinhbean.identity.exception.AppException;
 import com.chinhbean.identity.exception.ErrorCode;
+import com.chinhbean.identity.mapper.ProfileMapper;
 import com.chinhbean.identity.mapper.UserMapper;
 import com.chinhbean.identity.repository.RoleRepository;
 import com.chinhbean.identity.repository.UserRepository;
+import com.chinhbean.identity.repository.httpclient.ProfileClient;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Service
 @RequiredArgsConstructor
@@ -60,10 +58,10 @@ public class UserService {
 
         profileRequest.setUserId(user.getId());
 
-//        ServletRequestAttributes servletRequestAttributes =
-//                (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-//
-//        var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
+        //        ServletRequestAttributes servletRequestAttributes =
+        //                (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        //
+        //        var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
 
         var profile = profileClient.createProfile(profileRequest);
         // Publish message to kafka

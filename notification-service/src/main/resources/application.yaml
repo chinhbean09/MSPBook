@@ -20,4 +20,5 @@ spring:
 notification:
   email:
     brevo-url: https://api.brevo.com
+#    đọc một biến môi trường có tên là BREVO_API_KEY
     brevo-apikey: ${BREVO_API_KEY}

@@ -1,10 +1,11 @@
 package com.chinhbean.chat.repository;
 
-import com.chinhbean.chat.entity.ChatMessage;
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.chinhbean.chat.entity.ChatMessage;
 
 @Repository
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {

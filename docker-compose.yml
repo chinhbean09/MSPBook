@@ -1,8 +1,7 @@
-version: "3"
 name: micro-service-platform
 services:
   kafka:
-    image: 'bitnami/kafka:3.7.0'
+    image: bitnamilegacy/kafka:3.7.0
     container_name: kafka
     hostname: kafka
     ports:
@@ -16,8 +15,8 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
   mysql-identity:
-    image: mysql:8.0
-    container_name: mysql-identity
+    image: mysql:8.0.36-debian
+    container_name: mysql-db
     hostname: mysql-identity
     ports:
       - "3306:3306"
@@ -67,17 +66,17 @@ services:
       - SPRING_NEO4J_URI=bolt://neo4j-profile:7687
       - APP_SERVICES_FILE=http://file-service:8084
 
-  mongo-post:
-    image: mongo:latest
-    container_name: mongo-post
-    hostname: mongo-post
+  mongo-db:
+    image: bitnamilegacy/mongodb:7.0
+    container_name: mongo-db
+    hostname: mongo-db
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGODB_ROOT_USER: root
+      MONGODB_ROOT_PASSWORD: root
     volumes:
-      - post-db-data:/data/db
+      - mongodb-data:/data/db
 
   post-service:
     build:
@@ -87,10 +86,10 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - mongo-post
+      - mongo-db
       - profile-service
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/post-service?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/post-service?authSource=admin
       - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
 
   file-service:
@@ -101,9 +100,9 @@ services:
     ports:
       - "8084:8084"
     depends_on:
-      - mongo-post
+      - mongo-db
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/file-service?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/file-service?authSource=admin
       - APP_FILE_STORAGE-DIR=/upload
     volumes:
       - file-storage:/upload
@@ -116,11 +115,11 @@ services:
     ports:
       - "8085:8085"
     depends_on:
-      - mongo-post
+      - mongo-db
       - profile-service
       - identity-service
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/chat-service?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/chat-service?authSource=admin
       - APP_SERVICES_PROFILE_URL=http://profile-service:8081/profile
       - APP_SERVICES_IDENTITY_URL=http://identity-service:8080/identity
 
@@ -132,12 +131,14 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - mongo-post
+      - mongo-db
       - kafka
+# Đọc file .env từ thư mục gốc, inject chúng vào môi trường của container notification-service dưới dạng các biến môi trường
+    env_file:
+      - ./.env
     environment:
-      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-post:27017/notification-service?authSource=admin
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongo-db:27017/notification-service?authSource=admin
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - BREVO_API_KEY=your_brevo_api_key
 
   api-gateway:
     build:
@@ -182,5 +183,5 @@ services:
 volumes:
   identity-db-data:
   profile-db-data:
-  post-db-data:
+  mongodb-data:
   file-storage:

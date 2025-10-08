@@ -2,12 +2,12 @@ package com.chinhbean.identity.controller;
 
 import java.text.ParseException;
 
-import com.chinhbean.identity.dto.request.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chinhbean.identity.dto.request.*;
 import com.chinhbean.identity.dto.response.AuthenticationResponse;
 import com.chinhbean.identity.dto.response.IntrospectResponse;
 import com.chinhbean.identity.service.AuthenticationService;

@@ -2,7 +2,6 @@ package com.chinhbean.profile.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,9 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_ENDPOINTS = {
-        "/internal/users", "/internal/users/**"
-    };
+    private static final String[] PUBLIC_ENDPOINTS = {"/internal/users", "/internal/users/**"};
 
     private final CustomJwtDecoder customJwtDecoder;
 

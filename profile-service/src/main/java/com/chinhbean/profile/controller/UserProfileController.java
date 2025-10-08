@@ -1,19 +1,19 @@
 package com.chinhbean.profile.controller;
 
-import com.chinhbean.profile.dto.ApiResponse;
-import com.chinhbean.profile.dto.request.ProfileCreationRequest;
-import com.chinhbean.profile.dto.request.SearchUserRequest;
-import com.chinhbean.profile.dto.request.UpdateProfileRequest;
-import com.chinhbean.profile.dto.response.UserProfileResponse;
-import com.chinhbean.profile.dto.response.UserProfileResponse;
-import com.chinhbean.profile.service.UserProfileService;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import com.chinhbean.profile.dto.ApiResponse;
+import com.chinhbean.profile.dto.request.SearchUserRequest;
+import com.chinhbean.profile.dto.request.UpdateProfileRequest;
+import com.chinhbean.profile.dto.response.UserProfileResponse;
+import com.chinhbean.profile.service.UserProfileService;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,5 +62,4 @@ public class UserProfileController {
                 .result(userProfileService.search(request))
                 .build();
     }
-
 }

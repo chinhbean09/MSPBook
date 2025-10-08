@@ -1,10 +1,11 @@
 package com.chinhbean.chat.dto.response;
 
+import java.time.Instant;
+
 import com.chinhbean.chat.entity.ParticipantInfo;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Data
 @Builder

@@ -1,6 +1,8 @@
 package com.chinhbean.notification.configuration;
 
-import io.github.cdimascio.dotenv.Dotenv;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -8,8 +10,7 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
-import java.util.HashMap;
-import java.util.Map;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor {
     private static final Logger logger = LoggerFactory.getLogger(DotenvEnvironmentPostProcessor.class);

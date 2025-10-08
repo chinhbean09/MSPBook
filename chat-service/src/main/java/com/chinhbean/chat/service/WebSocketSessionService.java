@@ -1,12 +1,14 @@
 package com.chinhbean.chat.service;
 
+import org.springframework.stereotype.Service;
+
 import com.chinhbean.chat.entity.WebSocketSession;
 import com.chinhbean.chat.repository.WebSocketSessionRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service

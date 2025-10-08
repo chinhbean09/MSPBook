@@ -1,5 +1,10 @@
 package com.chinhbean.notification.service;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.chinhbean.notification.dto.request.EmailRequest;
 import com.chinhbean.notification.dto.request.SendEmailRequest;
 import com.chinhbean.notification.dto.request.Sender;
@@ -7,17 +12,12 @@ import com.chinhbean.notification.dto.response.EmailResponse;
 import com.chinhbean.notification.exception.AppException;
 import com.chinhbean.notification.exception.ErrorCode;
 import com.chinhbean.notification.repository.httpclient.EmailClient;
+
 import feign.FeignException;
-import io.github.cdimascio.dotenv.Dotenv;
-import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

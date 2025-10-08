@@ -38,9 +38,11 @@ Create a file named `Dockerfile` with the content above in the root directory of
 - `profile-service/`
 ---
 ## Step 2: Configure the `docker-compose.yml` File
+
 The `docker-compose.yml` file orchestrates the startup and networking of all services, including the application microservices and their backing databases and message brokers.
 Place the following content in the `docker-compose.yml` file in the project's root directory.
 **Important:** Before running, find the line `BREVO_API_KEY=your_brevo_api_key` and replace `your_brevo_api_key` with your actual key.
+
 ---
 
 ## Step 3: Build and Run the Application

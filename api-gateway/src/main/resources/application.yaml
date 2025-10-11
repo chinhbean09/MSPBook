@@ -15,36 +15,46 @@ spring:
           predicates:
             - Path=${app.api-prefix}/identity/**
           filters:
-#            stripPrefix = 2 là để match với /api/v1
             - StripPrefix=2
+
         - id: profile_service
           uri: http://localhost:8081
           predicates:
-#           chỉ cho phép truy cập prefix user còn prefix internal/user thì không
             - Path=${app.api-prefix}/profile/users/**
           filters:
             - StripPrefix=2
+
         - id: notification_service
           uri: http://localhost:8082
           predicates:
             - Path=${app.api-prefix}/notification/**
           filters:
             - StripPrefix=2
+
         - id: post_service
           uri: http://localhost:8083
           predicates:
             - Path=${app.api-prefix}/post/**
           filters:
             - StripPrefix=2
+
         - id: file_service
           uri: http://localhost:8084
           predicates:
             - Path=${app.api-prefix}/file/**
           filters:
             - StripPrefix=2
-        - id: chat_service
+
+        # Route cho các REST API của chat-service
+        - id: chat_service_http
           uri: http://localhost:8085
           predicates:
-            - Path=${app.api-prefix}/chat/**
+            - Path=${app.api-prefix}/chat/conversations/**, ${app.api-prefix}/chat/messages/**
           filters:
             - StripPrefix=2
+
+        # Route MỚI cho kết nối WebSocket của chat-service
+        - id: chat_service_websocket
+          uri: ws://localhost:8085
+          predicates:
+            - Path=${app.api-prefix}/chat/socket.io/**

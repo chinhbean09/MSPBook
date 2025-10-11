@@ -1,0 +1,71 @@
+name: micro-service-platform
+
+services:
+  kafka:
+    image: bitnamilegacy/kafka:3.7.0
+    container_name: kafka
+    hostname: kafka
+    ports:
+      - '9094:9094'
+    environment:
+      # chế độ đơn giản (single node).
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    restart: on-failure
+
+  mysql-identity:
+    image: mysql:8.0.36-debian
+    container_name: mysql-db
+    hostname: mysql-identity
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "12345"
+      # Image MySQL sẽ tự động tạo database này trong lần khởi động đầu tiên.
+      MYSQL_DATABASE: "social_platform_identity"
+    volumes:
+      - identity-db-data:/var/lib/mysql
+    healthcheck:
+      # Docker sẽ liên tục chạy lệnh này bên trong container để kiểm tra.
+      # Lệnh `mysqladmin ping` chỉ thành công khi MySQL server đã thực sự sẵn sàng nhận kết nối.
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s # Mỗi 10 giây kiểm tra một lần.
+      timeout: 5s   # Chờ tối đa 5 giây cho mỗi lần kiểm tra.
+      retries: 10   # Thử lại 10 lần trước khi báo lỗi.
+    restart: on-failure
+
+  neo4j-profile:
+    image: neo4j:4.4
+    container_name: neo4j-profile
+    hostname: neo4j-profile
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/12345678
+    volumes:
+      - profile-db-data:/data
+    restart: on-failure
+
+  mongo-db:
+    image: bitnamilegacy/mongodb:7.0
+    container_name: mongo-db
+    hostname: mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_ROOT_USER: root
+      MONGODB_ROOT_PASSWORD: root
+    volumes:
+      - mongodb-data:/data/db
+    restart: on-failure
+
+volumes:
+  identity-db-data:
+  profile-db-data:
+  mongodb-data:

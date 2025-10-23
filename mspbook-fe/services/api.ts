@@ -3,7 +3,7 @@ import { LoginPayload, RegisterPayload } from '../types';
 // Tách base URL để dễ quản lý
 const IDENTITY_API_URL = 'http://localhost:8888/api/v1/identity';
 const CHAT_API_URL = 'http://localhost:8888/api/v1/chat';
-const PROFILE_API_URL = 'http://localhost:8888/api/v1/profile'; // URL mới cho profile
+const PROFILE_API_URL = 'http://localhost:8888/api/v1/profile';
 
 // Hàm xử lý response chung, có "bóc vỏ" ApiResponse
 const handleApiResponse = async (response: Response) => {
@@ -52,6 +52,14 @@ export const searchUsers = async (keyword: string) => {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ keyword }),
+    });
+    return handleApiResponse(response);
+};
+
+// HÀM MỚI: Chỉ dành cho Admin
+export const getAllUsers = async () => {
+    const response = await fetch(`${PROFILE_API_URL}/users`, {
+        headers: getAuthHeaders(),
     });
     return handleApiResponse(response);
 };

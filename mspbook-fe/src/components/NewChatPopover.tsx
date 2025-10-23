@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Popover, TextField, List, ListItem, ListItemText, CircularProgress, Typography } from '@mui/material';
-import { searchUsers } from '../services/api';
+import { Popover, TextField, List, ListItem, ListItemText, CircularProgress, Typography, Box } from '@mui/material';
+import { searchUsers, getAllUsers } from '../../services/api';
 import { UserProfile } from '../types';
+import { useAuth } from '../hooks/useAuth'; // Import hook mới
 
 interface NewChatPopoverProps {
   anchorEl: HTMLElement | null;
@@ -28,30 +29,43 @@ const NewChatPopover: React.FC<NewChatPopoverProps> = ({ anchorEl, open, onClose
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms delay
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const { isAdmin } = useAuth(); // Lấy vai trò của người dùng
 
   useEffect(() => {
-    if (debouncedSearchTerm) {
-      const fetchUsers = async () => {
-        setLoading(true);
-        try {
-          const users = await searchUsers(debouncedSearchTerm);
-          setResults(users || []);
-        } catch (error) {
-          console.error("Failed to search users:", error);
-          setResults([]);
-        }
-        setLoading(false);
-      };
-      fetchUsers();
-    } else {
+    if (!open) {
       setResults([]);
+      return;
     }
-  }, [debouncedSearchTerm]);
+
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        let users;
+        // LOGIC PHÂN QUYỀN:
+        // Nếu là admin VÀ không có từ khóa tìm kiếm, thì lấy tất cả user.
+        if (isAdmin && !debouncedSearchTerm) {
+          users = await getAllUsers();
+        } else {
+          // Ngược lại, hoặc nếu là user thường, hoặc nếu admin đang tìm kiếm,
+          // thì dùng API search.
+          users = await searchUsers(debouncedSearchTerm);
+        }
+        setResults(users || []);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [debouncedSearchTerm, open, isAdmin]); // Thêm isAdmin vào dependency array
 
   const handleSelect = (user: UserProfile) => {
     onSelectUser(user);
-    onClose(); // Close popover after selection
+    onClose();
   };
 
   return (
@@ -59,12 +73,10 @@ const NewChatPopover: React.FC<NewChatPopoverProps> = ({ anchorEl, open, onClose
       open={open}
       anchorEl={anchorEl}
       onClose={onClose}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'left' }}
     >
-      <div style={{ padding: '16px', width: '300px' }}>
+      <Box sx={{ p: 2, width: 320 }}>
         <Typography variant="h6" gutterBottom>Tạo cuộc trò chuyện mới</Typography>
         <TextField
           fullWidth
@@ -73,16 +85,24 @@ const NewChatPopover: React.FC<NewChatPopoverProps> = ({ anchorEl, open, onClose
           size="small"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          autoFocus
         />
-        {loading && <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}><CircularProgress size={24} /></div>}
-        <List>
-          {results.map(user => (
-            <ListItem button key={user.id} onClick={() => handleSelect(user)}>
-              <ListItemText primary={`${user.firstName} ${user.lastName}`} secondary={`@${user.username}`} />
-            </ListItem>
-          ))}
-        </List>
-      </div>
+        <Box sx={{ height: 300, overflowY: 'auto', mt: 2 }}>
+          {loading && <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>}
+          {!loading && results.length === 0 && (
+            <Typography sx={{ p: 2, color: 'text.secondary' }}>
+              {debouncedSearchTerm ? 'Không tìm thấy người dùng.' : 'Nhập để tìm kiếm hoặc admin sẽ thấy tất cả.'}
+            </Typography>
+          )}
+          <List>
+            {results.map(user => (
+              <ListItem button key={user.id} onClick={() => handleSelect(user)}>
+                <ListItemText primary={`${user.firstName} ${user.lastName}`} secondary={`@${user.username}`} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Box>
     </Popover>
   );
 };
